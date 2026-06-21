@@ -1,0 +1,123 @@
+<div class="dashboard-wrapper" [class.dark-mode]="isDarkMode">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="brand-logo" (click)="goToDashboard()" style="cursor: pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h2>GörevYönetimi</h2>
+      <div class="nav-links" style="margin-left: 2rem;">
+        <button class="btn-ghost" (click)="goToDashboard()">Kişisel</button>
+        <button class="btn-ghost active">Çalışma Alanları (Workspaces)</button>
+      </div>
+    </div>
+    
+    <div class="nav-user">
+      <div class="nav-actions">
+        <!-- Dark Mode Toggle -->
+        <button class="icon-btn" (click)="toggleTheme()" title="Temayı Değiştir">
+          <svg *ngIf="!isDarkMode" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg *ngIf="isDarkMode" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+        <button class="btn-primary" (click)="showJoinModal = true">Çalışma Alanına Katıl</button>
+        <button class="btn-primary" (click)="showCreateModal = true">Çalışma Alanı Oluştur</button>
+        <app-notification-bell></app-notification-bell>
+      </div>
+    </div>
+  </nav>
+
+  <main class="dashboard-main" style="grid-template-columns: 1fr;">
+    <div class="main-content">
+      <div class="error-text" *ngIf="errorMessage">{{ errorMessage }}</div>
+      
+      <div class="empty-state" *ngIf="workspaces.length === 0">
+        <h3>Henüz bir çalışma alanına katılmadınız.</h3>
+        <p>Sağ üstteki butona tıklayarak bir davet kodu ile çalışma alanına katılın veya yeni bir çalışma alanı oluşturun.</p>
+      </div>
+
+      <div class="workspace-grid">
+        <div class="workspace-card" *ngFor="let ws of workspaces" (click)="goToWorkspace(ws.id)">
+          <div class="ws-banner" [style.background]="ws.banner_color || '#3b82f6'">
+            <h3>{{ ws.title }}</h3>
+            <!-- Role Badge on Banner -->
+            <span class="ws-role-badge" [class.owner]="ws.my_role === 'owner'" [class.member]="ws.my_role === 'member'">
+              <ng-container *ngIf="ws.my_role === 'owner'">🛡 Yönetici Paneli</ng-container>
+              <ng-container *ngIf="ws.my_role === 'member'">👤 Üye Paneli</ng-container>
+            </span>
+          </div>
+          <div class="ws-content">
+            <p>{{ ws.description }}</p>
+            <div class="ws-footer">
+              <span class="ws-role-text">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Rolünüz: <strong>{{ ws.my_role === 'owner' ? 'OWNER' : 'MEMBER' }}</strong>
+              </span>
+              <!-- Invite Code for OWNER Only -->
+              <div class="invite-section" *ngIf="ws.my_role === 'owner'" (click)="$event.stopPropagation()">
+                <span class="invite-label">Davet Kodu:</span>
+                <span class="invite-code">{{ ws.invite_code }}</span>
+                <button class="copy-btn" (click)="copyInvite(ws.invite_code)">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  Kopyala
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="showCreateModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Çalışma Alanı Oluştur</h2>
+      <button class="btn-close" (click)="showCreateModal = false">X</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Çalışma Alanı Adı</label>
+        <input type="text" [(ngModel)]="newWsTitle" placeholder="Örn: Yazılım Geliştirme 101" />
+      </div>
+      <div class="form-group">
+        <label>Açıklama</label>
+        <textarea [(ngModel)]="newWsDesc" placeholder="Kısa bir açıklama..." rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" (click)="createWorkspace()">Oluştur</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join Modal -->
+<div class="modal-overlay" *ngIf="showJoinModal" (click)="showJoinModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Çalışma Alanına Katıl</h2>
+      <button class="btn-close" (click)="showJoinModal = false">X</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Davet Kodu</label>
+        <input type="text" [(ngModel)]="joinInviteCode" placeholder="6 Haneli Davet Kodu" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" (click)="joinWorkspace()">Katıl</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast / Snackbar -->
+<div class="toast-snackbar" [class.toast-visible]="toastVisible" id="ws-list-toast">
+  {{ toastMessage }}
+</div>

@@ -1,0 +1,40 @@
+<div class="notification-wrapper">
+  <button class="icon-btn btn-bell" (click)="toggleNotifications($event)">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+    </svg>
+    <span class="badge-count" *ngIf="unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
+  </button>
+  
+  <div class="notification-dropdown" *ngIf="showNotifications" (click)="$event.stopPropagation()">
+    <div class="notif-header">
+      <h4>Bildirimler</h4>
+      <button class="btn-mark-all" *ngIf="unreadNotificationsCount > 0" (click)="markAllNotifsAsRead()">Tümünü Okundu İşaretle</button>
+    </div>
+    <div class="notif-body">
+      <div class="empty-state-notif" *ngIf="notifications.length === 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+        <p>Yeni bildiriminiz yok.</p>
+      </div>
+      <div class="notif-item" *ngFor="let notif of notifications" [class.unread]="!notif.is_read" (click)="markNotifAsRead(notif, $event)">
+        <div class="notif-icon" [ngClass]="notif.type">
+          <span *ngIf="notif.type === 'announcement'">📢</span>
+          <span *ngIf="notif.type === 'task_assigned'">📋</span>
+          <span *ngIf="notif.type === 'file_upload'">📄</span>
+          <span *ngIf="notif.type === 'comment'">💬</span>
+          <svg *ngIf="notif.type === 'overdue'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <svg *ngIf="notif.type === 'reminder'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <svg *ngIf="notif.type === 'assignment'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span *ngIf="!['announcement','task_assigned','file_upload','comment','overdue','reminder','assignment'].includes(notif.type)">🔔</span>
+        </div>
+        <div class="notif-content">
+          <p>{{ notif.message }}</p>
+          <span class="notif-ws-name" *ngIf="notif.workspace_name" style="font-size: 0.75rem; font-weight: 600; color: #3b82f6; display: block; margin-top: 2px;">{{ notif.workspace_name }}</span>
+          <span class="notif-time">{{ notif.created_at | date:'dd MMM HH:mm' }}</span>
+        </div>
+        <div class="notif-dot" *ngIf="!notif.is_read"></div>
+      </div>
+    </div>
+  </div>
+</div>

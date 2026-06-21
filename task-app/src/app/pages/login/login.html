@@ -1,0 +1,144 @@
+<div class="auth-page">
+  <!-- Toast Messages -->
+  <div class="toast toast-error" *ngIf="errorMessage">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+    {{ errorMessage }}
+  </div>
+  <div class="toast toast-success" *ngIf="successMessage">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    {{ successMessage }}
+  </div>
+
+  <div class="auth-container" [class.register-mode]="!isLoginMode">
+    
+    <!-- Left Side: Illustration -->
+    <div class="auth-illustration">
+      <div class="illustration-content">
+        <h2>Takımınızı Başarıya Taşıyın</h2>
+        <p>Görevleri yönetin, projeleri hızlandırın ve verimliliğinizi yeni bir seviyeye çıkarın.</p>
+      </div>
+      <div class="illustration-image" style="position: relative; z-index: 10; display: flex; justify-content: center; width: 100%;">
+        <div class="css-icon-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="productivity-icon">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="glass-orb orb-1"></div>
+      <div class="glass-orb orb-2"></div>
+    </div>
+
+    <!-- Right Side: Forms -->
+    <div class="auth-forms-wrapper">
+      
+      <!-- Login Form -->
+      <div class="form-container form-login" [class.active]="isLoginMode">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          GörevYönetimi
+        </div>
+        
+        <div class="auth-header">
+          <h2>Hoş Geldiniz 👋</h2>
+          <p>Lütfen hesabınıza giriş yapın.</p>
+        </div>
+
+        <div class="input-group">
+          <label>E-posta</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <input type="email" placeholder="ornek@sirket.com" [(ngModel)]="emailLogin" (keyup.enter)="login()" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Şifre</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <input [type]="showPasswordLogin ? 'text' : 'password'" placeholder="••••••••" [(ngModel)]="passwordLogin" (keyup.enter)="login()" />
+            <button class="btn-toggle-pass" (click)="togglePasswordVisibility('login')">
+              <svg *ngIf="!showPasswordLogin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg *ngIf="showPasswordLogin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" [(ngModel)]="rememberMe" />
+            <span class="checkmark"></span>
+            Beni Hatırla
+          </label>
+          <a class="forgot-link" (click)="forgotPassword()">Şifremi Unuttum?</a>
+        </div>
+
+        <button class="btn-primary auth-btn" (click)="login()" [disabled]="isLoading">
+          <svg *ngIf="isLoading" class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>
+          <span *ngIf="!isLoading">Giriş Yap</span>
+        </button>
+
+        <div class="auth-switch">
+          Hesabınız yok mu? <a (click)="toggleMode()">Hemen Kaydolun</a>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div class="form-container form-register" [class.active]="!isLoginMode">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          GörevYönetimi
+        </div>
+        
+        <div class="auth-header">
+          <h2>Hesap Oluşturun 🚀</h2>
+          <p>Kariyerinize ve takımınıza ivme kazandırın.</p>
+        </div>
+
+        <div class="input-group">
+          <label>Ad Soyad</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <input type="text" placeholder="John Doe" [(ngModel)]="nameReg" (keyup.enter)="register()" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>E-posta</label>
+          <div class="input-icon-wrapper">
+             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <input type="email" placeholder="ornek@sirket.com" [(ngModel)]="emailReg" (keyup.enter)="register()" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Şifre</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <input [type]="showPasswordReg ? 'text' : 'password'" placeholder="En az 6 karakter" [(ngModel)]="passwordReg" (keyup.enter)="register()" />
+            <button class="btn-toggle-pass" (click)="togglePasswordVisibility('register')">
+              <svg *ngIf="!showPasswordReg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg *ngIf="showPasswordReg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-primary auth-btn" (click)="register()" [disabled]="isLoading">
+          <svg *ngIf="isLoading" class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>
+          <span *ngIf="!isLoading">Kayıt Ol</span>
+        </button>
+
+        <div class="auth-switch">
+          Zaten bir hesabınız var mı? <a (click)="toggleMode()">Giriş Yapın</a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
