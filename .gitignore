@@ -1,0 +1,6 @@
+node_modules/
+task-app/node_modules/
+.env
+uploads/
+.angular/
+dist/
